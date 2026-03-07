@@ -1,0 +1,47 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>AI Companion</title>
+
+<link rel="stylesheet" href="{% static 'chat/style.css' %}">
+
+</head>
+
+<body class="romantic-bg">
+
+<div class="overlay"></div>
+
+<div class="chat-container">
+
+
+<div class="header">
+    🤖 AI Companion
+</div>
+
+<div id="messages" class="messages"></div>
+
+<div class="input-area">
+
+    <input
+        id="messageInput"
+        type="text"
+        placeholder="Say something..."
+    >
+
+    <button onclick="sendMessage()">Send</button>
+
+</div>
+
+
+</div>
+
+<script src="{% static 'chat/script.js' %}"></script>
+
+</body>
+
+</html>

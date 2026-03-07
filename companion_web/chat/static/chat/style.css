@@ -1,0 +1,306 @@
+/* Romantic background */
+
+.romantic-bg{
+
+
+background-image:url("../chat/grqimage1.jpg");
+
+background-size:cover;
+background-position:center;
+background-attachment:fixed;
+
+margin:0;
+height:100vh;
+
+font-family:"Segoe UI", Arial, sans-serif;
+
+display:flex;
+
+
+}
+
+/* dark romantic overlay */
+
+.overlay{
+
+
+position:fixed;
+
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+background:rgba(20,10,15,0.55);
+
+backdrop-filter:blur(6px);
+
+
+}
+
+/* main container */
+
+.chat-container{
+
+
+width:100%;
+height:100vh;
+
+display:flex;
+flex-direction:column;
+
+position:relative;
+z-index:2;
+
+
+}
+
+/* header */
+
+.header{
+
+
+padding:18px 25px;
+
+font-size:20px;
+
+color:white;
+
+background:linear-gradient(
+    135deg,
+    rgba(92,45,75,0.95),
+    rgba(180,90,120,0.9)
+);
+
+letter-spacing:0.5px;
+
+box-shadow:0 4px 10px rgba(0,0,0,0.25);
+
+
+}
+
+/* message area */
+
+.messages{
+
+
+flex:1;
+
+padding:40px;
+
+overflow-y:auto;
+
+
+}
+
+/* message row */
+
+.message-row{
+
+
+display:flex;
+
+margin-bottom:22px;
+
+
+}
+
+/* user side alignment */
+
+.user-row{
+
+
+justify-content:flex-end;
+
+
+}
+
+/* avatars */
+
+.avatar{
+
+
+width:40px;
+height:40px;
+
+border-radius:50%;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:18px;
+
+
+}
+
+/* ai avatar */
+
+.ai-avatar{
+
+
+background:linear-gradient(
+    135deg,
+    #7b3f61,
+    #c06c84
+);
+
+color:white;
+
+margin-right:12px;
+
+
+}
+
+/* user avatar */
+
+.user-avatar{
+
+
+background:#c9a8a3;
+
+color:white;
+
+margin-left:12px;
+
+
+}
+
+/* message bubble */
+
+.message{
+
+
+max-width:650px;
+
+padding:14px 18px;
+
+border-radius:16px;
+
+font-size:15px;
+
+line-height:1.6;
+
+
+}
+
+/* ai bubble */
+
+.ai{
+
+
+background:rgba(255,255,255,0.85);
+
+backdrop-filter:blur(10px);
+
+box-shadow:0 4px 15px rgba(0,0,0,0.15);
+
+
+}
+
+/* user bubble */
+
+.user{
+
+
+background:linear-gradient(
+    135deg,
+    #ffd1dc,
+    #ffe8d6
+);
+
+box-shadow:0 4px 12px rgba(0,0,0,0.12);
+
+
+}
+
+/* input area */
+
+.input-area{
+
+
+padding:18px;
+
+display:flex;
+
+gap:10px;
+
+background:rgba(255,255,255,0.65);
+
+backdrop-filter:blur(10px);
+
+border-top:1px solid rgba(0,0,0,0.05);
+
+
+}
+
+/* input field */
+
+.input-area input{
+
+
+flex:1;
+
+padding:14px 16px;
+
+border-radius:14px;
+
+border:none;
+
+font-size:15px;
+
+outline:none;
+
+
+}
+
+/* send button */
+
+.input-area button{
+
+
+padding:12px 24px;
+
+border:none;
+
+border-radius:14px;
+
+background:linear-gradient(
+    135deg,
+    #c06c84,
+    #6c5b7b
+);
+
+color:white;
+
+cursor:pointer;
+
+transition:all 0.25s ease;
+
+
+}
+
+/* hover effect */
+
+.input-area button:hover{
+
+
+transform:scale(1.05);
+
+box-shadow:0 4px 12px rgba(0,0,0,0.25);
+
+
+}
+
+/* typing indicator */
+
+.typing{
+
+
+font-style:italic;
+
+opacity:0.75;
+
+
+}
