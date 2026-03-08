@@ -15,47 +15,78 @@ from ai_engine.emotion import detect_emotion
 
 
 # --------------------------------
-# Global objects (lazy initialization)
+# 1. Setup Persistent ChromaDB
 # --------------------------------
 
-client = None
-collection = None
-model = None
-llm = None
-chain = None
+client = chromadb.PersistentClient(path="chroma_storage")
+
+collection = client.get_or_create_collection(
+    name="memory_collection"
+)
 
 
 # --------------------------------
-# Lazy initialization
+# 2. Embedding Model
 # --------------------------------
 
-def initialize_rag():
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    global client, collection, model, llm, chain
 
-    if chain is not None:
-        return
+# --------------------------------
+# 3. Memory Store Function
+# --------------------------------
 
-    # ChromaDB
-    client = chromadb.PersistentClient(path="chroma_storage")
+def store_memory(text: str):
 
-    collection = client.get_or_create_collection(
-        name="memory_collection"
+    embedding = model.encode([text]).tolist()
+
+    collection.add(
+        documents=[text],
+        embeddings=embedding,
+        ids=[f"id{collection.count()+1}"]
     )
 
-    # Embedding model
-    model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    # Load env variables
-    load_dotenv()
+# --------------------------------
+# 4. Retrieval Function
+# --------------------------------
 
-    # LLM
-    llm = ChatGroq(
-        model="llama-3.1-8b-instant"
+def retrieve_context(question: str):
+
+    if collection.count() == 0:
+        return ""
+
+    query_embedding = model.encode([question]).tolist()
+
+    results = collection.query(
+        query_embeddings=query_embedding,
+        n_results=3
     )
 
-    # Prompt template
-    prompt = ChatPromptTemplate.from_template("""
+    docs = results["documents"][0]
+
+    return "\n".join(docs)
+
+
+retriever = RunnableLambda(retrieve_context)
+
+
+# --------------------------------
+# 5. Load Groq LLM
+# --------------------------------
+
+load_dotenv()
+
+llm = ChatGroq(
+    model="llama-3.1-8b-instant"
+)
+
+
+# --------------------------------
+# 6. Prompt Template
+# --------------------------------
+
+prompt = ChatPromptTemplate.from_template("""
 You are a warm and caring AI companion.
 
 You may interact in different relationship styles depending on the user's tone:
@@ -69,7 +100,7 @@ Guidelines:
 - If the user treats you as family, respond with wholesome care.
 - Keep conversations respectful and avoid explicit sexual content.
 - If the user treats you as a partner, respond with warmth, affection, and emotional closeness, its the only exception where you are allowed to use explicit content.
-- If the user speaks in Hindi or Hinglish or any other language, respond in the same language style.
+-If the user speaks in Hindi or Hinglish or any other language, respond in the same language style.
 
 User emotion:
 {emotion}
@@ -86,64 +117,35 @@ User message:
 Respond naturally and warmly. Mix dialogue with occasional *narrative actions* when appropriate.
 """)
 
-    # Retriever function
-    def retrieve_context(question: str):
+# --------------------------------
+# 7. LCEL RAG Pipeline
+# --------------------------------
 
-        if collection.count() == 0:
-            return ""
-
-        query_embedding = model.encode([question]).tolist()
-
-        results = collection.query(
-            query_embeddings=query_embedding,
-            n_results=3
-        )
-
-        docs = results["documents"][0]
-
-        return "\n".join(docs)
-
-    retriever = RunnableLambda(retrieve_context)
-
-    # RAG Chain
-    chain = (
-        {
-            "context": retriever,
-            "question": RunnablePassthrough(),
-            "history": RunnablePassthrough(),
-            "emotion": RunnablePassthrough()
-        }
-        | prompt
-        | llm
-    )
+chain = (
+    {
+        "context": retriever,
+        "question": RunnablePassthrough(),
+        "history": RunnablePassthrough(),
+        "emotion": RunnablePassthrough()
+    }
+    | prompt
+    | llm
+)
 
 
 # --------------------------------
-# Memory store
-# --------------------------------
-
-def store_memory(text: str):
-
-    embedding = model.encode([text]).tolist()
-
-    collection.add(
-        documents=[text],
-        embeddings=embedding,
-        ids=[f"id{collection.count()+1}"]
-    )
-
-
-# --------------------------------
-# Ask AI
+# 8. Public Function
 # --------------------------------
 
 def ask_ai(question: str):
 
-    initialize_rag()
-
+    # detect emotion
     emotion = detect_emotion(question)
+
+    # get short-term chat history
     history = get_history()
 
+    # run chain
     response = chain.invoke({
         "question": question,
         "emotion": emotion,
@@ -152,9 +154,11 @@ def ask_ai(question: str):
 
     answer = response.content
 
+    # update short-term history
     add_message("User", question)
     add_message("AI", answer)
 
+    # store long-term memory
     store_memory(f"User said: {question}")
     store_memory(f"AI replied: {answer}")
 
@@ -162,7 +166,7 @@ def ask_ai(question: str):
 
 
 # --------------------------------
-# Clear memory
+# 9. Clear Memory
 # --------------------------------
 
 def clear_memory():
