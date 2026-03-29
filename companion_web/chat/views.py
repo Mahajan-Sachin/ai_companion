@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.http import JsonResponse
-from ai_engine.rag_core import ask_ai, clear_memory
+from ai_engine.rag_core import ask_ai
+from ai_engine.memory import clear_all_memory
 from django.shortcuts import render
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -16,7 +17,7 @@ def chat_api(request):
         data=json.loads(request.body) # req.body means {json format} but we are converting json to dict, which has actually {"message":"text"}
         user_message=data.get("message","")
         if user_message.lower()=="new":
-            clear_memory()
+            clear_all_memory()
             clear_history()
             return JsonResponse({
                 "reply":"Started a new chat"

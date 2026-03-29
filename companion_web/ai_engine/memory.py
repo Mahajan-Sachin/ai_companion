@@ -20,7 +20,7 @@ collection = client.get_or_create_collection(
 # List all memories
 # --------------------------------
 
-def list_memories():
+def list_memories(): # templatefor future extensablity
 
     data = collection.get()
 
@@ -32,11 +32,9 @@ def list_memories():
     return docs
 
 
-# --------------------------------
 # Delete memory by index
-# --------------------------------
 
-def forget_memory(index: int):
+def forget_memory(index: int): # templatefor future extensablity
 
     data = collection.get()
 
@@ -53,9 +51,7 @@ def forget_memory(index: int):
     return f"Deleted memory: {deleted}"
 
 
-# --------------------------------
 # Clear entire memory
-# --------------------------------
 
 def clear_all_memory():
 
@@ -64,7 +60,7 @@ def clear_all_memory():
     try:
         client.delete_collection("memory_collection")
     except:
-        pass
+        pass #justtoprevent crash
 
     collection = client.get_or_create_collection(
         name="memory_collection"
