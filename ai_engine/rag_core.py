@@ -133,7 +133,7 @@ chain = (
 
 
  
-# 8. Public Function
+# 8. Public Functions
  
 
 def ask_ai(question: str):
@@ -162,3 +162,40 @@ def ask_ai(question: str):
     store_memory(f"AI replied: {answer}")
 
     return answer
+
+
+ 
+# 9. Streaming Function
+ 
+
+def ask_ai_stream(question: str):
+    """
+    Generator that yields response tokens one by one using chain.stream().
+    Memory is stored only after the full response is collected,
+    so RAG context stays correct.
+    """
+
+    # detect emotion
+    emotion = detect_emotion(question)
+
+    # get short-term chat history
+    history = get_history()
+
+    full_answer = ""
+
+    # stream tokens from LLM
+    for chunk in chain.stream({
+        "question": question,
+        "emotion": emotion,
+        "history": history
+    }):
+        token = chunk.content
+        full_answer += token
+        yield token  # send token to caller immediately
+
+    # after full response is done — update both memories
+    add_message("User", question)
+    add_message("AI", full_answer)
+
+    store_memory(f"User said: {question}")
+    store_memory(f"AI replied: {full_answer}")
